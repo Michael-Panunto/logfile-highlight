@@ -1,14 +1,17 @@
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+
 import java.awt.*;
+import java.util.*;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 public class HighlightSelection extends JFrame {
     private String dateStr;
@@ -99,10 +102,19 @@ public class HighlightSelection extends JFrame {
                     errorReport("Start and End times should be of the form hh:mm", hs);
                     System.exit(0);
                 }
-                fRead(sText, eText, hs);
+                // Get text with fRead, pass it to highlightText
+                hs.dispose();
+                String logText = fRead(sText, eText, hs);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        highlightText(logText, hs);
+                    }
+                });
             }
-            errorReport("Please make sure all input fields have been filled out.", hs);
-            System.exit(0);
+            else {
+                errorReport("Please make sure all input fields have been filled out.", hs);
+                System.exit(0);
+            }
         });
 
         // Adding everything to the main panel
@@ -200,14 +212,146 @@ public class HighlightSelection extends JFrame {
             }
 
         } catch (IOException e){
-            // Sends error message as a popup
+            // Sends error message as a pop-up
             errorReport(e.getMessage(), hs);
         }
         return text;
     }
 
-    private void highlightText(String text){
+    private void highlightText(String text, HighlightSelection hs){
+        System.out.println("Here, length: " + text.length());
+        // Making sure fRead was successful
+        if (text.isEmpty()){
+            errorReport("Error: Text is null", hs);
+        }
 
+        HighlightSelection ht = new HighlightSelection();
+        ht.setLayout(new BorderLayout());
+
+        // Tags are array lists of objects used to keep track of each highlight
+        List<Object> hl_tag_blue = new ArrayList<>();
+        List<Object> hl_tag_purple = new ArrayList<>();
+        List<Object> hl_tag_green = new ArrayList<>();
+
+        // Displaying the text
+        JTextArea ta = new JTextArea();
+        ta.setEditable(false);
+        ta.setFont(font);
+        ta.setMargin(new Insets(10,10,10,10));
+        ta.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        ta.setSelectionColor(new Color(255, 255, 0));
+        ta.setText(text);
+
+        JScrollPane taScroll = new JScrollPane(ta);
+        taScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        Highlighter hl = ta.getHighlighter();
+
+        // 3 Different colour highlights
+        Highlighter.HighlightPainter paint_blue = new DefaultHighlighter.DefaultHighlightPainter(new Color(19, 247, 235, 150));
+        Highlighter.HighlightPainter paint_purple = new DefaultHighlighter.DefaultHighlightPainter(new Color(228, 112, 255, 150));
+        Highlighter.HighlightPainter paint_green = new DefaultHighlighter.DefaultHighlightPainter(new Color(50, 252, 80, 150));
+
+        ht.add(taScroll, BorderLayout.CENTER);
+        JPanel flow = new JPanel();
+        flow.setLayout(new FlowLayout());
+
+        // Buttons to select each colour, and a final one to clear all
+        JButton btn_1 = new JButton("Key 1");
+        btn_1.setBackground(new Color(19, 247, 235));
+        JButton btn_2 = new JButton("Key 2");
+        btn_2.setBackground(new Color(228, 112, 255));
+        JButton btn_3 = new JButton("Key 3");
+        btn_3.setBackground(new Color(50, 252, 80));
+        JButton btn_clear = new JButton("Clear All");
+
+        flow.add(btn_1);
+        flow.add(btn_2);
+        flow.add(btn_3);
+        flow.add(btn_clear);
+
+
+        // Creating action listeners for each button
+        btn_1.addActionListener(e -> {
+            // Delete previous highlights of this colour, if any exist
+            if (!hl_tag_blue.isEmpty()) {
+                for (Object hlb : hl_tag_blue) {
+                    hl.removeHighlight(hlb);
+                }
+            }
+            // Highlighting the text selected by user
+            if (ta.getSelectedText() != null) {
+                String pattern = ta.getSelectedText();
+                int occurrence = text.indexOf(pattern);
+                while (occurrence >= 0) {
+                    try {
+                        hl_tag_blue.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_blue));
+                        occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                    } catch (BadLocationException ex) {
+                        errorReport(ex.getMessage(), ht);
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_2.addActionListener(e -> {
+            if (e.getSource() == btn_2) {
+
+                if (!hl_tag_purple.isEmpty()) {
+                    for (Object hlp : hl_tag_purple) {
+                        hl.removeHighlight(hlp);
+                    }
+                }
+                if (ta.getSelectedText() != null) {
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try {
+                            hl_tag_purple.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_purple));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex) {
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_3.addActionListener(e -> {
+            if (e.getSource() == btn_3){
+                if (!hl_tag_green.isEmpty()){
+                    for (Object hlg : hl_tag_green){
+                        hl.removeHighlight(hlg);
+                    }
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_green.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_green));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+        btn_clear.addActionListener(e -> {
+            if (e.getSource() == btn_clear){
+                hl.removeAllHighlights();
+            }
+        });
+
+        ht.add(flow, BorderLayout.PAGE_END);
+        ht.setSize(950, 700);
+        ht.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        ht.setTitle("Multi-Highlight");
+        ht.setLocationRelativeTo(null);
+        ht.setVisible(true);
     }
 
     /**
