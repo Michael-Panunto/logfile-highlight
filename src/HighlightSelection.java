@@ -122,7 +122,7 @@ public class HighlightSelection extends JFrame {
         mainL.add(submitPanel, BorderLayout.PAGE_END);
 
         // Settings for the window
-        hs.setSize(625, 450);
+        hs.setSize(550, 450);
         hs.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         hs.setTitle("Log Multi-Highlight");
         hs.add(mainL);
@@ -219,7 +219,6 @@ public class HighlightSelection extends JFrame {
     }
 
     private void highlightText(String text, HighlightSelection hs){
-        System.out.println("Here, length: " + text.length());
         // Making sure fRead was successful
         if (text.isEmpty()){
             errorReport("Error: Text is null", hs);
