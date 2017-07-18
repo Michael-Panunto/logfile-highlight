@@ -130,6 +130,12 @@ public class HighlightSelection extends JFrame {
         hs.setVisible(true);
     }
 
+    /**
+     * Reads the logfile between a given start and endTime
+     * @param startTime The time to start the reading from
+     * @param endTime The time to end the reading at
+     * @return All the text between the given start and end times
+     */
     private String fRead(String startTime, String endTime, HighlightSelection hs){
         String text = "";
         try {
@@ -218,6 +224,11 @@ public class HighlightSelection extends JFrame {
         return text;
     }
 
+    /**
+     * Highlights the text based on a user selection
+     * @param text The text from the log between a given start and end time
+     * @param hs A HighlightSelection object
+     */
     private void highlightText(String text, HighlightSelection hs){
         // Making sure fRead was successful
         if (text.isEmpty()){
