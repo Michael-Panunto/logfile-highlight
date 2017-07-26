@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HighlightSelection extends JFrame {
     private String dateStr;
-    private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
+    private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 13);
     private File logfile;
 
     private void guiCreation(HighlightSelection hs){
