@@ -18,9 +18,6 @@ public class HighlightSelection extends JFrame {
     private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
     private File logfile;
 
-    /**
-     * Creates the user interface for the program
-     */
     private void guiCreation(HighlightSelection hs){
         // Getting current date (year)
         SimpleDateFormat sdate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
