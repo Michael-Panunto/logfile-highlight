@@ -120,7 +120,7 @@ public class HighlightSelection extends JFrame {
         // Adding everything to the main panel
         mainL.add(centerPanel, BorderLayout.CENTER);
         mainL.add(submitPanel, BorderLayout.PAGE_END);
-
+        
         // Settings for the window
         hs.setSize(550, 450);
         hs.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -266,6 +266,33 @@ public class HighlightSelection extends JFrame {
         JPanel flow = new JPanel();
         flow.setLayout(new FlowLayout());
 
+        // TODO: Add search bar
+
+        // Initializing panel and textfield for the search bar
+        JPanel search = new JPanel(new FlowLayout());
+        JTextField searchField = new JTextField(30);
+
+        // Search submit button
+        JButton searchButton = new JButton("Search");
+        search.add(searchField);
+        search.add(searchButton);
+
+        searchButton.addActionListener(e -> {
+            // If user has entered text in the search key
+            if (!searchField.getText().isEmpty()){
+                String searchKey = searchField.getText();
+                // Finding the index of the searchKey
+                int indexI = ta.getText().toLowerCase().indexOf(searchKey.toLowerCase());
+                int indexF = indexI + searchKey.length();
+
+                // Focus textfield before selecting
+                ta.requestFocusInWindow();
+
+                // Selecting the searched text
+                ta.select(indexI, indexF);
+            }
+        });
+
         // Buttons to select each colour, and a final one to clear all
         JButton btn_1 = new JButton("Key 1");
         btn_1.setBackground(new Color(19, 247, 235));
@@ -355,7 +382,7 @@ public class HighlightSelection extends JFrame {
                 hl.removeAllHighlights();
             }
         });
-
+        ht.add(search, BorderLayout.PAGE_START);
         ht.add(flow, BorderLayout.PAGE_END);
         ht.setSize(950, 700);
         ht.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -374,7 +401,7 @@ public class HighlightSelection extends JFrame {
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
-            System.err.println("Coudln't find file: " + path);
+            System.err.println("Couldn't find file: " + path);
             return null;
         }
     }
