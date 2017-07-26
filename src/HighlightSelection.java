@@ -263,8 +263,6 @@ public class HighlightSelection extends JFrame {
         JPanel flow = new JPanel();
         flow.setLayout(new FlowLayout());
 
-        // TODO: Add search bar
-
         // Initializing panel and textfield for the search bar
         JPanel search = new JPanel(new FlowLayout());
         JTextField searchField = new JTextField(30);
