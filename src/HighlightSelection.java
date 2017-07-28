@@ -4,6 +4,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.*;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -36,6 +37,10 @@ public class HighlightSelection extends JFrame {
         // Adding the file upload section
         JFileChooser jfc = new JFileChooser();
         jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        
+        // Setting default fille chooser directory
+        File workingDirectory = new File(System.getProperty("user.dir"));
+        jfc.setCurrentDirectory(workingDirectory);
 
         JButton openBtn = new JButton(createImageIcon("reference/folder.png"));
         openBtn.setPreferredSize(new Dimension(40, 40));
@@ -91,28 +96,59 @@ public class HighlightSelection extends JFrame {
         submitPanel.add(submitButton);
 
         // Runs the highlight if fields have been filled out correctly
-        submitButton.addActionListener(e -> {
-            if (!sTime.getText().isEmpty() && !eTime.getText().isEmpty() && logfile.exists()){
-                String sText = sTime.getText().replaceAll("\\s+", "");
-                String eText = eTime.getText().replaceAll("\\s+", "");
-                if (!sText.matches("^\\d{2}:\\d{2}") || !eText.matches("^\\d{2}:\\d{2}")){
-                    errorReport("Start and End times should be of the form hh:mm", hs);
-                    System.exit(0);
-                }
-                // Get text with fRead, pass it to highlightText
-                hs.dispose();
-                String logText = fRead(sText, eText, hs);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        highlightText(logText, hs);
+        submitButton.addActionListener((ActionEvent e) -> {
+                    if (!sTime.getText().isEmpty() && !eTime.getText().isEmpty() && logfile.exists()) {
+                        String sText = sTime.getText().replaceAll("\\s+", "");
+                        String eText = eTime.getText().replaceAll("\\s+", "");
+                        if (!sText.matches("^\\d{2}:\\d{2}") || !eText.matches("^\\d{2}:\\d{2}")) {
+                            errorReport("Start and End times should be of the form hh:mm", hs);
+                            System.exit(0);
+                        }
+                        // Get text with fRead, pass it to highlightText
+                        hs.dispose();
+                        String logText = fRead(sText, eText, hs);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                highlightText(logText, hs);
+                            }
+                        });
+                    } else if (sTime.getText().isEmpty() && eTime.getText().isEmpty() && logfile.exists())
+                    {
+                        hs.dispose();
+                        String logText = readFull(hs);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                highlightText(logText, hs);
+                            }
+                        });
+                    } else if (sTime.getText().isEmpty() && !eTime.getText().isEmpty() && logfile.exists()) {
+                        String eText = eTime.getText().replaceAll("\\s+", "");
+                        if (!eText.matches("^\\d{2}:\\d{2}")) {
+                            errorReport("End time should be of the form hh:mm", hs);
+                            System.exit(0);
+                        }
+                        hs.dispose();
+                        String logText = readPart(1, eText, hs);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                highlightText(logText, hs);
+                            }
+                        });
+                    } else if(!sTime.getText().isEmpty() && eTime.getText().isEmpty() && logfile.exists()) {
+                        String sText = sTime.getText().replaceAll("\\s+", "");
+                        if (!sText.matches("^\\d{2}:\\d{2}")) {
+                            errorReport("Start time should be of the form hh:mm", hs);
+                            System.exit(0);
+                        }
+                        hs.dispose();
+                        String logText = readPart(0, sText, hs);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                highlightText(logText, hs);
+                            }
+                        });
                     }
                 });
-            }
-            else {
-                errorReport("Please make sure all input fields have been filled out.", hs);
-                System.exit(0);
-            }
-        });
 
         // Adding everything to the main panel
         mainL.add(centerPanel, BorderLayout.CENTER);
@@ -125,6 +161,67 @@ public class HighlightSelection extends JFrame {
         hs.add(mainL);
         hs.setLocationRelativeTo(null);
         hs.setVisible(true);
+    }
+
+    /**
+     * Reads the logfile when only one input field was filled
+     * @param elementGiven 0 if startTime was given, 1 if endTime was given
+     * @param inputField The text from the field that wasn't empty
+     * @param hs HighlightSelection object
+     * @return Text from the logfile depending on input given
+     */
+    private String readPart(int elementGiven, String inputField, HighlightSelection hs){
+        String text = "";
+        try{
+            // Reading from the uploaded file
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(logfile));
+            int readByte = bis.read();
+            StringBuilder outputBuffer = new StringBuilder();
+
+            while (readByte != 0xfffffff){
+                outputBuffer.append((char) readByte);
+                readByte = bis.read();
+            }
+            bis.close();
+            if (elementGiven == 0){
+                if (outputBuffer.toString().contains(inputField)) {
+                    text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(inputField + ":"));
+                } else {
+                    //TODO
+                }
+            } else if (elementGiven == 1){
+                text = outputBuffer.toString().substring(0, outputBuffer.toString().lastIndexOf(inputField + ":") - 15);
+            }
+
+        } catch(IOException e){
+            errorReport(e.getMessage(), hs);
+        }
+        return text;
+    }
+
+    /**
+     * Reads the full logfile
+     * @param hs HighlightSelection object
+     * @return The full text from the given logfile
+     */
+    private String readFull(HighlightSelection hs){
+        String text = "";
+        try {
+            // Reading from the uploaded file
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(logfile));
+            int readByte = bis.read();
+            StringBuilder outputBuffer = new StringBuilder();
+
+            while (readByte != 0xffffffff) {
+                outputBuffer.append((char) readByte);
+                readByte = bis.read();
+            }
+            bis.close();
+            text = outputBuffer.toString();
+        } catch(IOException e){
+            errorReport(e.getMessage(), hs);
+        }
+        return text;
     }
 
     /**
@@ -151,70 +248,62 @@ public class HighlightSelection extends JFrame {
             String uETime = endTime + ":";
 
             // If statements adjust start and endTimes depending on whether the ones given are found in the log or not
-            if (outputBuffer.toString().contains(uSTime) && outputBuffer.toString().contains(uETime)){
-                text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(uSTime), outputBuffer.toString().indexOf(uETime) + 1);
-            }
-
-            else if (!outputBuffer.toString().contains(uSTime) && outputBuffer.toString().contains(uETime)){
+            if (outputBuffer.toString().contains(uSTime) && outputBuffer.toString().contains(uETime)) {
+                text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(uSTime), outputBuffer.toString().lastIndexOf(uETime) - 15);
+            } else if (!outputBuffer.toString().contains(uSTime) && outputBuffer.toString().contains(uETime)) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:");
                 Date uSDate = new Date();
-               try {
-                   uSDate = sdf.parse(startTime + ":");
-               }catch (ParseException e){
-                   System.err.println(e.getMessage());
-               }
-               Calendar c = Calendar.getInstance();
-               c.setTime(uSDate);
-               while (Integer.parseInt(sdf.format(c.getTime()).substring(3,5)) < 59){
-                   c.add(Calendar.MINUTE, 1);
-                   if (outputBuffer.toString().contains(sdf.format(c.getTime()))){
-                       text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(sdf.format(c.getTime())), outputBuffer.toString().indexOf(uETime) + 1);
-                       break;
-                   }
-               }
-               if (Integer.parseInt(sdf.format(c.getTime()).substring(3,5)) == 59){
-                   errorReport("No start times found within the hour specified", hs);
-               }
-            }
-
-            else if (outputBuffer.toString().contains(uSTime) && !outputBuffer.toString().contains(uETime)){
-                if (outputBuffer.toString().lastIndexOf(uETime.substring(0,3)) > 0) {
-                    text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(uSTime), outputBuffer.toString().lastIndexOf(" " + uETime.substring(0,3)) + 1);
+                try {
+                    uSDate = sdf.parse(startTime + ":");
+                } catch (ParseException e) {
+                    System.err.println(e.getMessage());
                 }
-                else {
+                Calendar c = Calendar.getInstance();
+                c.setTime(uSDate);
+                while (Integer.parseInt(sdf.format(c.getTime()).substring(3, 5)) < 59) {
+                    c.add(Calendar.MINUTE, 1);
+                    if (outputBuffer.toString().contains(sdf.format(c.getTime()))) {
+                        text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(sdf.format(c.getTime())), outputBuffer.toString().lastIndexOf(uETime) - 15);
+                        break;
+                    }
+                }
+                if (Integer.parseInt(sdf.format(c.getTime()).substring(3, 5)) == 59) {
+                    errorReport("No start times found within the hour specified", hs);
+                }
+            } else if (outputBuffer.toString().contains(uSTime) && !outputBuffer.toString().contains(uETime)) {
+                if (outputBuffer.toString().lastIndexOf(uETime.substring(0, 3)) > 0) {
+                    text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(uSTime), outputBuffer.toString().lastIndexOf(" " + uETime.substring(0, 3)) - 15);
+                } else {
                     errorReport("No end times found within the hour specified", hs);
                 }
-            }
-
-            else if (!outputBuffer.toString().contains(uSTime) && !outputBuffer.toString().contains(uETime)){
-                if (outputBuffer.toString().lastIndexOf(uETime.substring(0,3)) > 0) {
+            } else if (!outputBuffer.toString().contains(uSTime) && !outputBuffer.toString().contains(uETime)) {
+                if (outputBuffer.toString().lastIndexOf(uETime.substring(0, 3)) > 0) {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:");
                     Date uSDate = new Date();
                     try {
                         uSDate = sdf.parse(startTime + ":");
-                    }catch (ParseException e){
+                    } catch (ParseException e) {
                         System.err.println(e.getMessage());
                     }
                     Calendar c = Calendar.getInstance();
                     c.setTime(uSDate);
-                    while (Integer.parseInt(sdf.format(c.getTime()).substring(3,5)) < 59){
+                    while (Integer.parseInt(sdf.format(c.getTime()).substring(3, 5)) < 59) {
                         c.add(Calendar.MINUTE, 1);
-                        if (outputBuffer.toString().contains(sdf.format(c.getTime()))){
-                            text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(sdf.format(c.getTime())), outputBuffer.toString().lastIndexOf(uETime.substring(0,3)) + 1);
+                        if (outputBuffer.toString().contains(sdf.format(c.getTime()))) {
+                            text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(sdf.format(c.getTime())), outputBuffer.toString().lastIndexOf(" " + uETime.substring(0, 3)) - 15);
                             break;
                         }
                     }
-                    if (Integer.parseInt(sdf.format(c.getTime()).substring(3,5)) == 59){
+
+                    if (Integer.parseInt(sdf.format(c.getTime()).substring(3, 5)) == 59) {
                         errorReport("No start times found within the hour specified", hs);
                     }
-                }
-                else {
+                } else {
                     errorReport("No end times found within the hour specified", hs);
                 }
 
             }
-
-        } catch (IOException e){
+        }catch (IOException e){
             // Sends error message as a pop-up
             errorReport(e.getMessage(), hs);
         }
