@@ -178,19 +178,35 @@ public class HighlightSelection extends JFrame {
             int readByte = bis.read();
             StringBuilder outputBuffer = new StringBuilder();
 
-            while (readByte != 0xfffffff){
+            while (readByte != 0xffffffff){
                 outputBuffer.append((char) readByte);
                 readByte = bis.read();
             }
             bis.close();
             if (elementGiven == 0){
-                if (outputBuffer.toString().contains(inputField)) {
-                    text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(inputField + ":"));
-                } else {
-                    //TODO
+                if (outputBuffer.toString().contains(inputField + ":")) {
+                    text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(inputField + ":") - 10);
+                } else{
+                    String newInput = " " + inputField.substring(0,3);
+                    if (outputBuffer.toString().contains(newInput)){
+                        text = outputBuffer.toString().substring(outputBuffer.toString().indexOf(newInput) - 10);
+                    }
+                    else {
+                        errorReport("Could not find specified time", hs);
+                    }
                 }
             } else if (elementGiven == 1){
-                text = outputBuffer.toString().substring(0, outputBuffer.toString().lastIndexOf(inputField + ":") - 15);
+                if (outputBuffer.toString().contains(inputField + ":")) {
+                    text = outputBuffer.toString().substring(0, outputBuffer.toString().lastIndexOf(inputField + ":") - 15);
+                } else{
+                    String newIn = " " + inputField.substring(0,3);
+                    if (outputBuffer.toString().contains(newIn)){
+                        text = outputBuffer.toString().substring(0, outputBuffer.toString().lastIndexOf(newIn) - 14);
+                    }
+                    else {
+                        errorReport("Could not find specified time", hs);
+                    }
+                }
             }
 
         } catch(IOException e){
