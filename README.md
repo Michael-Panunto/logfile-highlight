@@ -5,6 +5,9 @@ Highlight a portion of the log and choose a colour, the program will also find a
 
 - From the main menu, select the file you wish to read from.
 - Enter valid start and end times that appear within the log (or are within an hour of another entry) using the format HH:mm.
+- Leaving both fields blank will result in the full log being read. 
+- Entering only the start time will result in the log reading from the given start time to the very end of the log. 
+- Finally, entering only the end time will result in the log reading from the very beginning to the given end time.
 - Press highlight once the fields are filled in properly to load up the log
 
 ### Highlighting:
