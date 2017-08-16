@@ -20,3 +20,6 @@ Highlight a portion of the log and choose a colour, the program will also find a
 - Type a keyword or phrase in the search bar and press the search button.
 - After pressing search, it will select an occurrence of that word/phrase for you in the text area.
 - Finally, select a colour from the bottom to have it highlight all occurrences of your search.
+
+### Jar File:
+- The executable .jar file can be found under out/artifacts/logfile_highlight_jar/logfile-highlight.jar
