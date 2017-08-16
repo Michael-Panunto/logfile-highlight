@@ -38,7 +38,7 @@ public class HighlightSelection extends JFrame {
         JFileChooser jfc = new JFileChooser();
         jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         
-        // Setting default fille chooser directory
+        // Setting default file chooser directory
         File workingDirectory = new File(System.getProperty("user.dir"));
         jfc.setCurrentDirectory(workingDirectory);
 
@@ -92,7 +92,7 @@ public class HighlightSelection extends JFrame {
 
         // Creating a panel for submission button
         JPanel submitPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton submitButton = new JButton("Highlight");
+        JButton submitButton = new JButton("Load");
         submitPanel.add(submitButton);
 
         // Runs the highlight if fields have been filled out correctly
