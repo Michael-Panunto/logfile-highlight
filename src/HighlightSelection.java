@@ -344,6 +344,11 @@ public class HighlightSelection extends JFrame {
         List<Object> hl_tag_blue = new ArrayList<>();
         List<Object> hl_tag_purple = new ArrayList<>();
         List<Object> hl_tag_green = new ArrayList<>();
+        List<Object> hl_tag_red = new ArrayList<>();
+        List<Object> hl_tag_orange = new ArrayList<>();
+        List<Object> hl_tag_pink = new ArrayList<>();
+        List<Object> hl_tag_grey = new ArrayList<>();
+        List<Object> hl_tag_lime = new ArrayList<>();
 
         // Displaying the text
         JTextArea ta = new JTextArea();
@@ -359,10 +364,15 @@ public class HighlightSelection extends JFrame {
 
         Highlighter hl = ta.getHighlighter();
 
-        // 3 Different colour highlights
+        // 8 Different colour highlights
         Highlighter.HighlightPainter paint_blue = new DefaultHighlighter.DefaultHighlightPainter(new Color(19, 247, 235, 150));
         Highlighter.HighlightPainter paint_purple = new DefaultHighlighter.DefaultHighlightPainter(new Color(228, 112, 255, 150));
         Highlighter.HighlightPainter paint_green = new DefaultHighlighter.DefaultHighlightPainter(new Color(50, 252, 80, 150));
+        Highlighter.HighlightPainter paint_red = new DefaultHighlighter.DefaultHighlightPainter(new Color(245,50,50, 150));
+        Highlighter.HighlightPainter paint_orange = new DefaultHighlighter.DefaultHighlightPainter(new Color(245, 150, 40, 150));
+        Highlighter.HighlightPainter paint_pink = new DefaultHighlighter.DefaultHighlightPainter(new Color(255, 0, 145, 150));
+        Highlighter.HighlightPainter paint_grey = new DefaultHighlighter.DefaultHighlightPainter(new Color(100, 100, 100, 150));
+        Highlighter.HighlightPainter paint_lime = new DefaultHighlighter.DefaultHighlightPainter(new Color(140, 255, 0, 185));
 
         ht.add(taScroll, BorderLayout.CENTER);
         JPanel flow = new JPanel();
@@ -393,21 +403,45 @@ public class HighlightSelection extends JFrame {
             }
         });
 
+        //TODO: can turn into a method with multiple calls
         // Buttons to select each colour, and a final one to clear all
-        JButton btn_1 = new JButton("Key 1");
+        JButton btn_1 = new JButton("");
         btn_1.setBackground(new Color(19, 247, 235));
-        JButton btn_2 = new JButton("Key 2");
+        JButton btn_2 = new JButton("");
         btn_2.setBackground(new Color(228, 112, 255));
-        JButton btn_3 = new JButton("Key 3");
+        JButton btn_3 = new JButton("");
         btn_3.setBackground(new Color(50, 252, 80));
+        JButton btn_4 = new JButton("");
+        btn_4.setBackground(new Color(245, 50, 50));
+        JButton btn_5 = new JButton("");
+        btn_5.setBackground(new Color(245, 150, 40));
+        JButton btn_6 = new JButton("");
+        btn_6.setBackground(new Color(255, 0, 145));
+        JButton btn_7 = new JButton("");
+        btn_7.setBackground(new Color(100, 100, 100));
+        JButton btn_8 = new JButton("");
+        btn_8.setBackground(new Color(140, 255, 0));
+
         JButton btn_clear = new JButton("Clear All");
+
+        JButton[] buttons = {btn_1, btn_2, btn_3, btn_4, btn_5, btn_6, btn_7, btn_8};
+        Dimension btnsize = new Dimension(35,35);
+        for (JButton b : buttons){
+            b.setPreferredSize(btnsize);
+        }
 
         flow.add(btn_1);
         flow.add(btn_2);
         flow.add(btn_3);
+        flow.add(btn_4);
+        flow.add(btn_5);
+        flow.add(btn_6);
+        flow.add(btn_7);
+        flow.add(btn_8);
+
         flow.add(btn_clear);
 
-
+        //TODO: Turn this into a method which is called multiple times
         // Creating action listeners for each button
         btn_1.addActionListener(e -> {
             // Delete previous highlights of this colour, if any exist
@@ -415,6 +449,7 @@ public class HighlightSelection extends JFrame {
                 for (Object hlb : hl_tag_blue) {
                     hl.removeHighlight(hlb);
                 }
+                hl_tag_blue.clear();
             }
             // Highlighting the text selected by user
             if (ta.getSelectedText() != null) {
@@ -439,6 +474,7 @@ public class HighlightSelection extends JFrame {
                     for (Object hlp : hl_tag_purple) {
                         hl.removeHighlight(hlp);
                     }
+                    hl_tag_purple.clear();
                 }
                 if (ta.getSelectedText() != null) {
                     String pattern = ta.getSelectedText();
@@ -462,6 +498,7 @@ public class HighlightSelection extends JFrame {
                     for (Object hlg : hl_tag_green){
                         hl.removeHighlight(hlg);
                     }
+                    hl_tag_green.clear();
                 }
                 if (ta.getSelectedText() != null){
                     String pattern = ta.getSelectedText();
@@ -477,6 +514,127 @@ public class HighlightSelection extends JFrame {
                 }
             }
         });
+
+        // See comments for btn_1
+        btn_4.addActionListener(e -> {
+            if (e.getSource() == btn_4){
+                if (!hl_tag_red.isEmpty()){
+                    for (Object hlg : hl_tag_red){
+                        hl.removeHighlight(hlg);
+                    }
+                    hl_tag_red.clear();
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_red.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_red));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_5.addActionListener(e -> {
+            if (e.getSource() == btn_5){
+                if (!hl_tag_orange.isEmpty()){
+                    for (Object hlg : hl_tag_orange){
+                        hl.removeHighlight(hlg);
+                    }
+                    hl_tag_orange.clear();
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_orange.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_orange));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_6.addActionListener(e -> {
+            if (e.getSource() == btn_6){
+                if (!hl_tag_pink.isEmpty()){
+                    for (Object hlg : hl_tag_pink){
+                        hl.removeHighlight(hlg);
+                    }
+                    hl_tag_pink.clear();
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_pink.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_pink));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_7.addActionListener(e -> {
+            if (e.getSource() == btn_7){
+                if (!hl_tag_grey.isEmpty()){
+                    for (Object hlg : hl_tag_grey){
+                        hl.removeHighlight(hlg);
+                    }
+                    hl_tag_grey.clear();
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_grey.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_grey));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
+        // See comments for btn_1
+        btn_8.addActionListener(e -> {
+            if (e.getSource() == btn_8){
+                if (!hl_tag_lime.isEmpty()){
+                    for (Object hlg : hl_tag_lime){
+                        hl.removeHighlight(hlg);
+                    }
+                    hl_tag_lime.clear();
+                }
+                if (ta.getSelectedText() != null){
+                    String pattern = ta.getSelectedText();
+                    int occurrence = text.indexOf(pattern);
+                    while (occurrence >= 0) {
+                        try{
+                            hl_tag_lime.add(hl.addHighlight(occurrence, occurrence + pattern.length(), paint_lime));
+                            occurrence = text.indexOf(pattern, occurrence + pattern.length());
+                        } catch (BadLocationException ex){
+                            errorReport(ex.getMessage(), ht);
+                        }
+                    }
+                }
+            }
+        });
+
         btn_clear.addActionListener(e -> {
             if (e.getSource() == btn_clear){
                 hl.removeAllHighlights();

@@ -1,5 +1,5 @@
 # logfile-highlight
-Highlight a portion of the log and choose a colour, the program will also find and highlight each other occurrence in that same colour. There are 3 separate colour to help with debugging.
+Highlight a portion of the log and choose a colour, the program will also find and highlight every other occurrence in that same colour. There are 8 separate colours to help with debugging.
 
 ### Using the program:
 
@@ -13,7 +13,7 @@ Highlight a portion of the log and choose a colour, the program will also find a
 ### Highlighting:
 
 - Make a selection in the log, then click one of the colours along the bottom. All occurrences of the selected text will be highlighted.
-- You can have three different selections highlighted at once, selecting new text and highlighting again will clear the original highlight   in that respective colour.
+- You can have three different selections highlighted at once, selecting new text and highlighting again will clear the original highlights of that respective colour and highlight all occurrences of the new key.
 - Clear all will clear all of the current highlights on the file.
 
 ### Search Bar:
